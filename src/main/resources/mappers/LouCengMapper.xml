@@ -1,0 +1,157 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.xxxx.crm.dao.LouCengMapper">
+  <resultMap id="BaseResultMap" type="com.xxxx.crm.vo.LouCeng">
+    <id column="id" jdbcType="INTEGER" property="id" />
+    <result column="id" jdbcType="VARCHAR" property="id" />
+    <result column="name" jdbcType="VARCHAR" property="name" />
+    <result column="introduction" jdbcType="VARCHAR" property="introduction" />
+    <result column="admin_id" jdbcType="VARCHAR" property="admin_id" />
+  </resultMap>
+  <sql id="building">
+    id, name, introduction, admin_id
+  </sql>
+  <select id="selectByPrimaryKey" parameterType="java.lang.Integer" resultMap="BaseResultMap">
+    select 
+    <include refid="building" />
+    from building
+    where id = #{id,jdbcType=INTEGER}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer">
+    delete from system_admin
+    where id = #{id,jdbcType=INTEGER}
+  </delete>
+  <insert id="insert" parameterType="com.xxxx.crm.vo.LouCeng">
+    insert into system_admin (id, name, introduction,
+                              admin_id)
+    values (#{id,jdbcType=INTEGER}, #{name,jdbcType=VARCHAR}, #{introduction,jdbcType=VARCHAR},
+      #{admin_id,jdbcType=VARCHAR})
+  </insert>
+  <insert id="insertSelective" parameterType="com.xxxx.crm.vo.LouCeng">
+    insert into building
+    <trim prefix="(" suffix=")" suffixOverrides=",">
+      <if test="id != null">
+        id,
+      </if>
+      <if test="name != null">
+        name,
+      </if>
+      <if test="introduction != null">
+        introduction,
+      </if>
+      <if test="admin_id != null">
+        admin_id,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides=",">
+      <if test="id != null">
+        #{id,jdbcType=INTEGER},
+      </if>
+      <if test="name != null">
+        #{name,jdbcType=VARCHAR},
+      </if>
+      <if test="introduction != null">
+        #{introduction,jdbcType=VARCHAR},
+      </if>
+      <if test="admin_id != null">
+        #{admin_id,jdbcType=VARCHAR},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="com.xxxx.crm.vo.LouCeng">
+    update building
+    <set>
+      <if test="name != null">
+        name = #{name,jdbcType=VARCHAR},
+      </if>
+      <if test="introduction != null">
+        introduction = #{introduction,jdbcType=VARCHAR},
+      </if>
+      <if test="admin_id != null">
+        admin_id = #{admin_id,jdbcType=VARCHAR},
+      </if>
+    </set>
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.xxxx.crm.vo.LouCeng">
+    update system_admin
+    set name = #{name,jdbcType=VARCHAR},
+        introduction = #{introduction,jdbcType=VARCHAR},
+        admin_id = #{admin_id,jdbcType=VARCHAR}
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+
+<!-- 多条件查询-->
+  <select id="queryLouCengParams" parameterType="com.xxxx.crm.query.QueryLouCeng" resultType="QueryLouCeng">
+    SELECT
+    d.*,s.name adminName
+    FROM
+    building d
+    LEFT JOIN system_admin s ON d.admin_id = s.id
+    <where>
+      <if test=" null != name and '' != name">
+        d.name like concat("%",#{name},"%")
+      </if>
+    </where>
+  </select>
+
+<!--  批量删除-->
+  <delete id="updateId" parameterType="int">
+    delete from building where id in
+    <foreach collection="array" open="(" close=")" item="id" separator=",">
+    #{id}
+     </foreach>
+  </delete>
+
+
+<!--  通过用户名查询是否唯一-->
+  <select id="selectByName" parameterType="string" resultType="louCeng">
+    select
+    *
+    from
+    building
+    where
+    admin_id
+    and
+    name = #{name}
+  </select>
+
+  <!--执行添加操作，设置对应sql属性，主键返回到user对象中-->
+  <insert id="insertParams" useGeneratedKeys="true" keyColumn="id" keyProperty="id" parameterType="com.xxxx.crm.vo.LouCeng" >
+    insert into building
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        id,
+      </if>
+      <if test="name != null" >
+        name,
+      </if>
+      <if test="introduction != null" >
+        introduction,
+      </if>
+      <if test="admin_id != null" >
+        admin_id,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        id,
+      </if>
+      <if test="name != null" >
+        name,
+      </if>
+      <if test="introduction != null" >
+        introduction,
+      </if>
+      <if test="admin_id != null" >
+        admin_id,
+      </if>
+    </trim>
+  </insert>
+
+<!--  /*查询所有的管理员*/-->
+  <select id="queryAllAdmin" resultType="map">
+    SELECT name rname,id FROM system_admin where is_valid = 1
+  </select>
+
+</mapper>
